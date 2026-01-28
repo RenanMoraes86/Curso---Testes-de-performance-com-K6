@@ -11,13 +11,19 @@ import { group } from 'k6';
 
 // Configuração
 export const options = {
-    vus: 1,
-    duration: '30s',
+    stages: [
+        {duration:'1m', target: 100},
+        {duration:'10s', target:1000},
+        {duration:'1m', target:1000},
+        {duration:'1m', target: 0},
+    ],
+    
     thresholds: {
         http_req_failed: ['rate < 0.01'],
-        http_req_duration: [{threshold: 'p(95) < 200', abortOnFail: true, delayAbortEval: '10s'}],
-        checks: ['rate > 0.99']
+        
+        
     }
+
 }
 
 
@@ -39,7 +45,7 @@ const myTrend = new Trend('taxa_de_espera');
 
 export default function() { 
   group('teste', function(){ 
-    const res = http.get('https://blazedemo.com/index.php');
+    const res = http.get('https://quickpizza.grafana.com');
 
     // contador
     chamadas.add(1);
@@ -54,7 +60,7 @@ export default function() {
     myTrend.add(res.timings.waiting);
 
     check(res, {
-        'status code é 200': (r) => r.status === 201
+        'status code é 200': (r) => r.status === 200
     })
  })
 
